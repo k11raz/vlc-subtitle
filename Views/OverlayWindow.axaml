@@ -1,0 +1,83 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SubLingo.Views.OverlayWindow"
+        Title="SubLingo"
+        SystemDecorations="None"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent"
+        Topmost="True"
+        CanResize="False"
+        ShowInTaskbar="True"
+        WindowState="Normal">
+
+    <Panel>
+
+        <!-- Sağ üst: ayarlar butonu -->
+        <Button Content="⚙"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,10,14,0"
+                Padding="10,5"
+                FontSize="16"
+                Background="#AA16161A"
+                Foreground="#CCFFFFFF"
+                CornerRadius="8"
+                Click="BtnSettings_Click"
+                Cursor="Hand"/>
+
+        <!-- Alt: altyazı bölgesi -->
+        <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Margin="200,-80,200,0"
+                    MaxWidth="800">
+
+            <!-- Orijinal altyazı: kelimeler dinamik olarak code-behind'da eklenir -->
+            <WrapPanel x:Name="WordsPanel"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8"/>
+
+            <!-- Türkçe çeviri -->
+            <TextBlock x:Name="TbTranslation"
+                       HorizontalAlignment="Center"
+                       FontSize="18"
+                       Foreground="#CCAAAACC"
+                       FontStyle="Italic"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Kelime popup (hover) -->
+        <Border x:Name="WordPopup"
+                Background="#EE1E1E28"
+                BorderBrush="#5A5A80"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="14,8"
+                IsVisible="False"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock x:Name="PopupWord"
+                           FontSize="15"
+                           FontWeight="Bold"
+                           Foreground="#A5B4FC"/>
+                <TextBlock Text="→"
+                           FontSize="14"
+                           Foreground="#555555"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="PopupTranslation"
+                           FontSize="15"
+                           FontWeight="SemiBold"
+                           Foreground="#4ADE80"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Status (hata mesajı) -->
+        <TextBlock x:Name="TbStatus"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,10"
+                   FontSize="12"
+                   Foreground="#AA888888"/>
+    </Panel>
+</Window>
