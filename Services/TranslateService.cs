@@ -9,6 +9,7 @@ public class TranslateService
 {
     private readonly HttpClient _http = new();
     private string? _deepLKey;
+    private string _libreTranslateUrl = "http://localhost:5000";
 
     public TranslateService()
     {
@@ -17,20 +18,67 @@ public class TranslateService
     }
 
     public void SetDeepLKey(string key) => _deepLKey = key;
+    
+    public void SetLibreTranslateUrl(string url) => _libreTranslateUrl = url;
 
     public async Task<string> TranslateSentence(string text, string targetLang = "tr")
     {
+        // 1. LibreTranslate (offline, local)
+        var libreResult = await LibreTranslate(text, targetLang);
+        if (libreResult != null) return libreResult;
+
+        // 2. DeepL (online, key varsa)
         if (!string.IsNullOrEmpty(_deepLKey))
         {
-            var result = await DeepLTranslate(text, targetLang);
-            if (result != null) return result;
+            var deepl = await DeepLTranslate(text, targetLang);
+            if (deepl != null) return deepl;
         }
 
-        return await GoogleTranslate(text, targetLang) ?? text;
+        // 3. Google Translate (online, ücretsiz)
+        var google = await GoogleTranslate(text, targetLang);
+        if (google == null) return "⚠ Çeviri yapılamadı";
+        if (google == text) return "⚠ Çeviri başarısız";
+        return google;
     }
 
     public async Task<string> TranslateWord(string word, string targetLang = "tr")
-        => await GoogleTranslate(word.ToLower().Trim(), targetLang) ?? word;
+    {
+        // 1. LibreTranslate
+        var libre = await LibreTranslate(word.ToLower().Trim(), targetLang);
+        if (libre != null && libre != word) return libre;
+
+        // 2. Google Translate
+        var result = await GoogleTranslate(word.ToLower().Trim(), targetLang);
+        if (result == null || result == word) return "?";
+        return result;
+    }
+    
+    private async Task<string?> LibreTranslate(string text, string targetLang)
+    {
+        try
+        {
+            var payload = new
+            {
+                q = text,
+                source = "en",
+                target = targetLang
+            };
+
+            var content = new StringContent(
+                System.Text.Json.JsonSerializer.Serialize(payload),
+                System.Text.Encoding.UTF8,
+                "application/json");
+
+            var res = await _http.PostAsync($"{_libreTranslateUrl}/translate", content);
+            if (!res.IsSuccessStatusCode) return null;
+
+            var json = await res.Content.ReadFromJsonAsync<LibreTranslateResponse>();
+            return json?.translatedText;
+        }
+        catch { return null; }
+    }
+
+    private record LibreTranslateResponse(string translatedText);
 
     private async Task<string?> GoogleTranslate(string text, string targetLang)
     {
@@ -74,4 +122,14 @@ public class TranslateService
 
     private record DeepLResponse(List<DeepLTranslation>? translations);
     private record DeepLTranslation(string text);
+    
+    public async Task<bool> CheckLibreTranslate()
+    {
+        try
+        {
+            var res = await _http.GetAsync($"{_libreTranslateUrl}/languages");
+            return res.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
 }

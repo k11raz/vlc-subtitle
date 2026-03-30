@@ -33,11 +33,58 @@ public partial class OverlayWindow : Window
 
         this.Opened += async (s, e) =>
         {
+            await StartLibreTranslate(); // önce LibreTranslate'i başlat
             if (_config.IsReady)
                 await StartSync();
             else
                 OpenSettings();
         };
+    }
+    
+    private async Task StartLibreTranslate()
+    {
+        try
+        {
+            // Zaten çalışıyor mu?
+            var res = await _translateSvc.CheckLibreTranslate();
+            if (res) return;
+
+            // Çalışmıyorsa podman ile başlat
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "podman",
+                Arguments = "start libretranslate",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            var process = System.Diagnostics.Process.Start(psi);
+            if (process != null) await process.WaitForExitAsync();
+
+            // Container yoksa oluştur
+            if (process?.ExitCode != 0)
+            {
+                psi.Arguments = "run -d --name libretranslate -p 5000:5000 " +
+                                "libretranslate/libretranslate --load-only en,tr";
+                process = System.Diagnostics.Process.Start(psi);
+                if (process != null) await process.WaitForExitAsync();
+            }
+
+            // Hazır olana kadar bekle (max 30 sn)
+            SetStatus("LibreTranslate başlatılıyor...");
+            for (int i = 0; i < 30; i++)
+            {
+                await Task.Delay(1000);
+                if (await _translateSvc.CheckLibreTranslate())
+                {
+                    SetStatus("");
+                    return;
+                }
+            }
+
+            SetStatus("LibreTranslate başlatılamadı, Google Translate kullanılıyor");
+        }
+        catch { }
     }
 
     // ─── Sync ───────────────────────────────────────────────────────────────

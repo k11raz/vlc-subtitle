@@ -61,3 +61,4 @@
 /home/aliki/Downloads/sublingo-avalonia/SubLingo/obj/Debug/net8.0/SubLingo.csproj.Up2Date
 /home/aliki/Downloads/sublingo-avalonia/SubLingo/obj/Debug/net8.0/SubLingo.genruntimeconfig.cache
 /home/aliki/Downloads/sublingo-avalonia/SubLingo/obj/Debug/net8.0/ref/SubLingo.dll
+/home/aliki/Downloads/sublingo-avalonia/SubLingo/obj/Debug/net8.0/SubLingo.sourcelink.json

@@ -28,7 +28,7 @@
         <!-- Alt: altyazı bölgesi -->
         <StackPanel VerticalAlignment="Center"
                     HorizontalAlignment="Center"
-                    Margin="200,-80,200,0"
+                    Margin="200,-40,200,0"
                     MaxWidth="800">
 
             <!-- Orijinal altyazı: kelimeler dinamik olarak code-behind'da eklenir -->
