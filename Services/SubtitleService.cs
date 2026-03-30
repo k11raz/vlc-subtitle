@@ -200,7 +200,5 @@ private async Task<double?> GetVlcTimeDBus()
             .OrderBy(e => e.Start)
             .FirstOrDefault();
     }
-
-    // YENİ
     private record VlcStatus(double time, double position, double length, string state);
 }
